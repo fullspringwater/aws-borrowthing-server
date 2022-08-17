@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
-from config import Config
 from flask_jwt_extended import JWTManager
+from config import Config
 from resources.chat import ChatRoomResource
 from resources.community import PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
 
