@@ -37,7 +37,7 @@ class UserRegisterResource(Resource) :
         # 3. 비밀번호의 길이가 유효한지 체크한다.
         # 비번길이는 4자리 이상, 12자리 이하로만!
         if len(data['password']) < 4 or len(data['password']) > 12 :
-            return {'error' : '비밀번호 길이를 확인하세요'}, 400
+            return {'error' : '비밀번호 길이를 확인하세요'}, 200
 
         # 4. 비밀번호를 암호화 한다.
         hashedPassword = hash_password( data['password'] )
@@ -151,7 +151,7 @@ class UserLoginResource(Resource) :
         # 되어 있지 않은 이메일이다.
 
         if len(items) != 1 :
-            return {'error' : '등록되어 있지 않은 이메일입니다.'}, 400
+            return {'error' : '등록되어 있지 않은 이메일입니다.'}, 200
 
         # 4. 비밀번호가 맞는지 확인한다.
         user_info = items[0]
@@ -161,7 +161,7 @@ class UserLoginResource(Resource) :
         check = check_password(data['password'] , user_info['password'])
 
         if check == False :
-            return {'error' : '비밀번호가 맞지 않습니다.'}, 400
+            return {'error' : '비밀번호가 맞지 않습니다.'}, 200
 
         accessToken = create_access_token( user_info['id'])
 
