@@ -878,7 +878,7 @@ class PostingLikesResource(Resource) :
             connection = get_connection()   
 
             # 댓글 가져오기         
-            query = '''select * from posting_comments
+            query = '''select * from likes
                     where postingId = %s
                     limit {}, {};'''.format(offset, limit) 
             
@@ -893,17 +893,6 @@ class PostingLikesResource(Resource) :
 
             # 5. select 문은, 아래 함수를 이용해서, 데이터를 받아온다.
             items = cursor.fetchall()
-            
-            # 중요! 디비에서 가져온 timestamp는 
-            # 파이썬의 datetime 으로 자동 변경된다.
-            # 문제는 이 데이터를 json으로 바로 보낼 수 없으므로,
-            # 문자열로 바꿔서 다시 저장해서 보낸다.
-            i=0
-            
-        
-            for record in items :
-                items[i]['createdAt'] = record['createdAt'].isoformat()
-                i = i+1      
 
 
             # 6. 자원 해제
