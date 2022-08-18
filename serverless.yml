@@ -1,5 +1,4 @@
-org: fullspringwater
-app: aws-borrowthing-server
+console: true
 service: aws-borrowthing-server
 
 frameworkVersion: '3'
@@ -11,6 +10,8 @@ custom:
 provider:
   name: aws
   runtime: python3.8
+  timeout: 30
+  region: ap-northeast-2
 
 functions:
   api:
