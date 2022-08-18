@@ -177,12 +177,23 @@ class PostingListResource(Resource) :
             connection = get_connection()   
 
             # 게시글 가져오기         
-            query = '''select p.* , count(pi.imageId) imgCount
-                        from posting p
+            query = '''select p.* , likesCount.likesCount, commentCount.commentCount, imgCount.imgCount
+                        from posting p,
+                        (select p.id, count(l.id) likesCount from posting p
+                        left join likes l
+                        on p.id = l.postingId
+                        group by p.id) likesCount,
+                        (select p.id, count(pc.id) commentCount from posting p
+                        left join posting_comments pc
+                        on p.id = pc.postingId
+                        group by p.id) commentCount,
+                        (select p.id, count(pi.id) imgCount from posting p
                         left join posting_image pi
                         on p.id = pi.postingId
+                        group by p.id) imgCount
+                        where p.id = likesCount.id and p.id = commentCount.id and p.id = imgCount.id
                         group by p.id
-                        limit {}, {};'''.format(offset, limit) 
+                        limit {}, {};'''.format(offset, limit)
 
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.
@@ -205,8 +216,8 @@ class PostingListResource(Resource) :
             for record in items :
                 items[i]['createdAt'] = record['createdAt'].isoformat()
 
-                if record['imgCount'] > 0 :
-                    selectedId.append(record['id'])
+                # if record['imgCount'] > 0 :
+                selectedId.append(record['id'])
 
                 i = i+1
             
@@ -214,11 +225,11 @@ class PostingListResource(Resource) :
             # 게시글 사진 가져오기
             for id in selectedId :
                 query = '''
-                select pi.postingId, i.userId, i.imageUrl
+                select i.imageUrl
                 from posting_image pi
                 join images i
                 on pi.imageId = i.id
-                having postingId = {};'''.format(id)
+                where postingId = {};'''.format(id)
 
                 # 3. 커서를 가져온다.
                 # select를 할 때는 dictionary = True로 설정한다.
@@ -230,9 +241,14 @@ class PostingListResource(Resource) :
                 # 5. select 문은, 아래 함수를 이용해서, 데이터를 받아온다.
                 images = cursor.fetchall()
                 itemImages.append(images)
-        
 
-
+            
+            
+            i=0
+            for record in items :
+                items[i]['imgUrl'] = itemImages[i]
+                i += 1 
+            
             # 6. 자원 해제
             cursor.close()
             connection.close()
@@ -242,15 +258,11 @@ class PostingListResource(Resource) :
             cursor.close()
             connection.close()
             return {"error" : str(e)}, 503
-        
-        
-
     
         return {
             "result" : "success",
             "count" : len(items),
-            "items" : items,
-            "itemImages" : itemImages}, 200
+            "items" : items}, 200
 
 
 
@@ -496,13 +508,19 @@ class PostingInfoResource(Resource) :
             connection = get_connection()
             
             # 2. 쿼리문 만들기
-            query = '''select p.* , count(pi.imageId) imgCount
+            query = '''select p.* , count(pi.imageId) imgCount,
+                    (select count(id) commentCount
+                                    from posting_comments
+                                    where postingId = %s) commentCount,
+                    (select count(id) likesCount
+                                    from likes
+                                    where postingId = %s) likesCount
                     from posting p
                     left join posting_image pi
                     on p.id = pi.postingId
                     group by p.id
                     having id = %s;'''            
-            record = (postingId, )
+            record = (postingId, postingId, postingId)
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.
             cursor = connection.cursor(dictionary = True)
@@ -523,11 +541,12 @@ class PostingInfoResource(Resource) :
                 items[i]['createdAt'] = record['createdAt'].isoformat()             
                 i = i+1
 
-            query = '''select pi.id, pi.postingId, i.userId, i.imageUrl
+            # 이미지 가져오기
+            query = '''select i.imageUrl
                         from posting_image pi
                         join images i
                         on pi.imageId = i.id
-                        having postingId = %s;'''
+                        where postingId = %s;'''
             record = (postingId, )
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.
@@ -538,6 +557,12 @@ class PostingInfoResource(Resource) :
 
             # 5. select 문은, 아래 함수를 이용해서, 데이터를 받아온다.
             itemImages = cursor.fetchall()
+            
+
+            if not itemImages:
+                items[0]['imgUrl'] = []
+            else :
+                items[0]['imgUrl'] = itemImages[0]
 
 
             # 6. 자원 해제
@@ -554,8 +579,7 @@ class PostingInfoResource(Resource) :
         return {
             "result" : "success",
             "count" : len(items),
-            "items" : items,
-            "itemImages" : itemImages}, 200
+            "items" : items}, 200
 
 class PostingCommentResource(Resource) :
     # 커뮤니티 게시글 댓글 달기
