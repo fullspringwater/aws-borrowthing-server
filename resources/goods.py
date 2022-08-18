@@ -1,13 +1,12 @@
-import datetime
-from flask import request
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required, get_jwt_identity
+from datetime import datetime
 from flask_restful import Resource
+from flask import request
 from mysql_connection import get_connection
 import mysql.connector
+from flask_jwt_extended import get_jwt_identity, jwt_required
+import boto3
 
-from email_validator import validate_email, EmailNotValidError
-
-from utils import check_password, hash_password
+from config import Config
 
 class GoodsListResource(Resource) :
     # 빌려주기 글 목록 리스트
@@ -445,8 +444,8 @@ class GoodsPostingResource(Resource) :
 
             # 작성자와 게시글이 유효한지 확인한다.
             query = '''select * from goods
-                    where sellerId = %s and id = %s;'''
-            record = (userId, goodsId)
+                    where sellerId = %s'''
+            record = (userId, )
             cursor = connection.cursor(dictionary = True)
             cursor.execute(query, record)
             items = cursor.fetchall()
@@ -457,8 +456,30 @@ class GoodsPostingResource(Resource) :
                 return {'error' : '잘못된 접근입니다.'}
             
             # 2. 쿼리문 만들기
+
+            # 관심 상품 삭제
+            query = '''Delete from wish_lists
+                    where goodsId = %s;'''                 
+            record = (goodsId, )
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+
+            # 구매하기 삭제
+            query = '''Delete from buy
+                    where goodsId = %s;'''                 
+            record = (goodsId, )
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+
             # 이미지 삭제
             query = '''Delete from goods_image
+                    where goodsId = %s;'''                 
+            record = (goodsId, )
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+
+            # 거래 후기 삭제
+            query = '''Delete from evaluation_items
                     where goodsId = %s;'''                 
             record = (goodsId, )
             cursor = connection.cursor()
@@ -493,25 +514,182 @@ class GoodsPostingResource(Resource) :
         return {'result' : 'success'}, 200
     
     # 특정 빌려주기글 가져오기
-    def get(self) :
-        pass
+    def get(self, goodsId) :
+        try :
+            # 데이터 insert
+            # 1. DB에 연결
+            connection = get_connection()
+            
+            # 2. 쿼리문 만들기
+            query = '''select g.id, g.sellerId, g.title, g.content, g.price, g.viewCount, 
+                    g.status, g.rentalPeriod, g.createdAt, count(gi.imageId) as imgCount,
+                    (select count(id) as attentionCount
+                    from wish_lists
+                    where goodsId = %s) as attentionCount,
+                    (select count(id) as commentCount
+                    from goods_comments
+                    where goodsId = %s) as commentCount
+                    from goods g
+                    join goods_image gi
+                        on g.id = gi.goodsId
+                    group by g.id
+                    having id = %s;'''            
+            record = (goodsId, goodsId, goodsId)
+            # 3. 커서를 가져온다.
+            # select를 할 때는 dictionary = True로 설정한다.
+            cursor = connection.cursor(dictionary = True)
+
+            # 4. 쿼리문을 커서를 이용해서 실행한다.
+            cursor.execute(query,record)
+
+            # 5. select 문은, 아래 함수를 이용해서, 데이터를 받아온다.
+            items = cursor.fetchall()
+            
+            # 중요! 디비에서 가져온 timestamp는 
+            # 파이썬의 datetime 으로 자동 변경된다.
+            # 문제는 이 데이터를 json으로 바로 보낼 수 없으므로,
+            # 문자열로 바꿔서 다시 저장해서 보낸다.
+            i=0
+            for record in items :
+                items[i]['createdAt'] = record['createdAt'].isoformat()             
+                i = i+1
+
+            # 이미지 가져오기
+            query = '''select i.imageUrl
+                        from goods_image gi
+                        join images i
+                        on gi.imageId = i.id
+                        where goodsId = %s;'''
+            record = (goodsId, )
+            # 3. 커서를 가져온다.
+            # select를 할 때는 dictionary = True로 설정한다.
+            cursor = connection.cursor(dictionary = True)
+
+            # 4. 쿼리문을 커서를 이용해서 실행한다.
+            cursor.execute(query,record)
+
+            # 5. select 문은, 아래 함수를 이용해서, 데이터를 받아온다.
+            itemImages = cursor.fetchall()
+            
+            if not itemImages:
+                items[0]['imgUrl'] = []
+            else :
+                items[0]['imgUrl'] = itemImages[0]
+
+            # 6. 자원 해제
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+            return {"error" : str(e)}, 503
+        
+        return {
+            "result" : "success",
+            "count" : len(items),
+            "items" : items}, 200
 
 class GoodsCommentResource(Resource) :
     @jwt_required()
     # 빌려주기 글에 댓글 달기
-    def post(self) :
-        pass
+    def post(self, goodsId) :
+        # 1. 클라이언트로부터 데이터를 받아온다.
+        userId = get_jwt_identity()
+
+        data = request.get_json()
+
+        # 게시물 작성
+        # 3. DB에 저장
+        try :
+            # 데이터 insert
+            # 1. DB에 연결
+            connection = get_connection()
+            
+            # 2. 쿼리문 만들기
+            query = '''insert into goods_comments
+                    (goodsId, userId, comment)
+                    values
+                    (%s, %s, %s);'''
+                    
+            # recode 는 튜플 형태로 만든다.
+            recode = (goodsId, userId, data['comment'])
+
+            # 3. 커서를 가져온다.
+            cursor = connection.cursor()
+
+            # 4. 쿼리문을 커서를 이용해서 실행한다.
+            cursor.execute(query, recode)
+
+            # 5. 커넥션을 커밋해줘야 한다 => 디비에 영구적으로 반영하라는 뜻
+            connection.commit()
+
+            # 6. 자원 해제
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+            return {"error" : str(e)}, 503
+            
+        return {"result" : "success"}, 200
 
     @jwt_required()
     # 빌려주기 글에 댓글 삭제
-    def delete(self) :
-        pass
+    def delete(self, goodsId) :
+        # 1. 클라이언트로부터 데이터를 받아온다.
+        userId = get_jwt_identity()
 
-class GoodsRecommendResource(Resource) :
-     @jwt_required()
-     # 추천하는 빌려주기 글 가져오기
-     def get(self) :
-        pass
+        # 게시물 작성
+        # 3. DB에 저장
+        try :
+            # 데이터 insert
+            # 1. DB에 연결
+            connection = get_connection()
+
+            # 작성자와 게시글이 유효한지 확인한다.
+            query = '''select * from goods_comments
+                    where userId = %s'''
+            record = (userId, )
+            cursor = connection.cursor(dictionary = True)
+            cursor.execute(query, record)
+            items = cursor.fetchall()
+
+            if len(items) < 1 :
+                cursor.close()
+                connection.close()
+                return {'error' : '잘못된 접근입니다.'}
+            
+            # 2. 쿼리문 만들기
+            query = '''delete from goods_comments
+                    where userId = %s and goodsId = %s;'''
+                    
+            # recode 는 튜플 형태로 만든다.
+            recode = (userId, goodsId)
+
+            # 3. 커서를 가져온다.
+            cursor = connection.cursor()
+
+            # 4. 쿼리문을 커서를 이용해서 실행한다.
+            cursor.execute(query, recode)
+
+            # 5. 커넥션을 커밋해줘야 한다 => 디비에 영구적으로 반영하라는 뜻
+            connection.commit()
+
+            # 6. 자원 해제
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+            return {"error" : str(e)}, 503
+            
+        return {"result" : "success"}, 200
 
 class GoodsReviewResource(Resource) :
      @jwt_required()
@@ -731,3 +909,10 @@ class GoodsCategoryResource(Resource) :
             "result" : "success",
             "count" : len(items),
             "items" : items}, 200
+
+
+class GoodsRecommendResource(Resource) :
+     @jwt_required()
+     # 추천하는 빌려주기 글 가져오기
+     def get(self) :
+        pass
