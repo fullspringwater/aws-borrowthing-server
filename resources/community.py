@@ -440,19 +440,14 @@ class PostingInfoResource(Resource) :
             cursor.close()
             connection.close()
             return {"error" : str(e)}, 503
-
-
-
         
         # 이미지 다시 추가
         # photo(file), content(text)
-        photoList = ['photo1', 'photo2', 'photo3']
-        for photo in photoList :
-            if photo in request.files:
-                # 2. S3에 파일 업로드
-                # 클라이언트로부터 파일을 받아온다.
-                file = request.files[photo]
-
+        if 'photo' in request.files:
+            # 2. S3에 파일 업로드
+            # 클라이언트로부터 파일을 받아온다.
+            files = request.files.getlist("photo")
+            for file in files :
                 # 파일명을 우리가 변경해 준다.
                 # 파일명은, 유니크하게 만들어야 한다.
                 current_time = datetime.now()
@@ -519,11 +514,8 @@ class PostingInfoResource(Resource) :
                     # 쿼리문을 커서를 이용해서 실행한다.
                     cursor.execute(query, recode)
 
-
                     # 커넥션을 커밋해줘야 한다 => 디비에 영구적으로 반영하라는 뜻
                     connection.commit()
-
-                    
 
                     # 6. 자원 해제
                     cursor.close()
@@ -534,7 +526,6 @@ class PostingInfoResource(Resource) :
                     cursor.close()
                     connection.close()
                     return {"error" : str(e)}, 503
-                
 
         return {'result' : 'success'}, 200
 
@@ -577,6 +568,13 @@ class PostingInfoResource(Resource) :
             cursor = connection.cursor()
             cursor.execute(query, record)
 
+            # comments 삭제
+            query = '''Delete from posting_comments
+                    where postingId = %s;'''                 
+            record = (postingId,)
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+
             # 게시글 삭제
             query = '''Delete from posting
                         where id = %s and userId = %s;'''                 
@@ -607,6 +605,7 @@ class PostingInfoResource(Resource) :
             return {"error" : str(e)}, 503
 
         return {'result' : 'success'}, 200
+
 
     # 특정 커뮤니티 게시글 가져오기
     def get(self, postingId) :
@@ -670,7 +669,7 @@ class PostingInfoResource(Resource) :
             if not itemImages:
                 items[0]['imgUrl'] = []
             else :
-                items[0]['imgUrl'] = itemImages[0]
+                items[0]['imgUrl'] = itemImages
 
 
             # 6. 자원 해제
