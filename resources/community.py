@@ -193,6 +193,7 @@ class PostingListResource(Resource) :
                         group by p.id) imgCount
                         where p.id = likesCount.id and p.id = commentCount.id and p.id = imgCount.id
                         group by p.id
+                        order by p.createdAt desc
                         limit {}, {};'''.format(offset, limit)
 
             # 3. 커서를 가져온다.
@@ -716,6 +717,7 @@ class LoginStatusPostingInfoResource(Resource) :
                     left join posting_image pi
                     on p.id = pi.postingId
                     group by p.id
+                    order by p.createdAt desc
                     having p.id = %s;'''            
             record = (postingId, postingId, userId, postingId, postingId)
             # 3. 커서를 가져온다.
