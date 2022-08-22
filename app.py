@@ -6,7 +6,7 @@ from resources.chat import ChatRoomResource
 from resources.community import LoginStatusPostingInfoResource, LoginStatusPostingListResource, PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
 from resources.goods import GoodsCategoryResource, GoodsCommentResource, GoodsDealResource, GoodsInterestItemResource, GoodsListInAreaResource, GoodsListResource, GoodsPostingResource, GoodsRecommendResource, GoodsReviewResource, LoginStatusGoodsPostingResource
 
-from resources.users import UserActivityAreaResource, UserBuyResource, UserBuyingResource, UserCommunityCommentResource, UserEditResource, UserGoodsCommentResource, UserLikesPostingResource, UserLocationResource, UserLoginResource, UserLogoutResource, UserPurchaseCompleteResource, UserRegisterResource, UserSaleResource, UserWishlistResource, jwt_blacklist
+from resources.users import UserActivityAreaResource, UserBuyResource, UserCommunityCommentResource, UserEditResource, UserGoodsCommentResource, UserLikesPostingResource, UserLocationResource, UserLoginResource, UserLogoutResource, UserRegisterResource, UserSaleResource, UserWishlistResource, jwt_blacklist
 
 app = Flask(__name__)
 
@@ -37,8 +37,7 @@ api.add_resource(UserLocationResource, '/users/location')
 api.add_resource(UserCommunityCommentResource, '/users/community/comment')
 api.add_resource(UserGoodsCommentResource, '/users/goods/comment')
 api.add_resource(UserActivityAreaResource, '/users/location/distance')
-api.add_resource(UserBuyingResource, '/users/goods/ing')
-api.add_resource(UserPurchaseCompleteResource, '/users/goods/end')
+
 
 
 # goods
