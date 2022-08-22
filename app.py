@@ -3,8 +3,8 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from config import Config
 from resources.chat import ChatRoomResource
-from resources.community import PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
-from resources.goods import GoodsCategoryResource, GoodsCommentResource, GoodsDealResource, GoodsInterestItemResource, GoodsListResource, GoodsPostingResource, GoodsRecommendResource, GoodsReviewResource
+from resources.community import LoginStatusPostingInfoResource, LoginStatusPostingListResource, PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
+from resources.goods import GoodsCategoryResource, GoodsCommentResource, GoodsDealResource, GoodsInterestItemResource, GoodsListInAreaResource, GoodsListResource, GoodsPostingResource, GoodsRecommendResource, GoodsReviewResource, LoginStatusGoodsPostingResource
 
 from resources.users import UserActivityAreaResource, UserBuyResource, UserBuyingResource, UserCommunityCommentResource, UserEditResource, UserGoodsCommentResource, UserLikesPostingResource, UserLocationResource, UserLoginResource, UserLogoutResource, UserPurchaseCompleteResource, UserRegisterResource, UserSaleResource, UserWishlistResource, jwt_blacklist
 
@@ -43,16 +43,21 @@ api.add_resource(UserPurchaseCompleteResource, '/users/goods/end')
 
 # goods
 api.add_resource(GoodsListResource, '/goods')
+api.add_resource(GoodsListInAreaResource, '/goods/area')
 api.add_resource(GoodsPostingResource, '/goods/<int:goodsId>')
+api.add_resource(LoginStatusGoodsPostingResource, '/goods/login/<int:goodsId>')
 api.add_resource(GoodsCommentResource, '/goods/<int:goodsId>/comment')
 api.add_resource(GoodsRecommendResource, '/goods/recommend')
 api.add_resource(GoodsCategoryResource, '/categories')
 api.add_resource(GoodsReviewResource, '/evaluation/<int:goodsId>')
 api.add_resource(GoodsInterestItemResource, '/goods/<int:goodsId>/wish')
 api.add_resource(GoodsDealResource, '/goods/<int:goodsId>/deal')
+
 # community
 api.add_resource(PostingListResource, '/community')
+api.add_resource(LoginStatusPostingListResource, '/community/login')
 api.add_resource(PostingInfoResource, '/community/<int:postingId>')
+api.add_resource(LoginStatusPostingInfoResource, '/community/login/<int:postingId>')
 api.add_resource(PostingCommentResource,'/community/<int:postingId>/comment/<int:commentId>')
 api.add_resource(PostingLikesResource, '/community/<int:postingId>/likes')
 
