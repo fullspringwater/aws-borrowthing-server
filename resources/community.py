@@ -178,7 +178,10 @@ class PostingListResource(Resource) :
 
             # 게시글 가져오기         
             query = '''select p.* , likesCount.likesCount, commentCount.commentCount, imgCount.imgCount
-                        from posting p,
+                        from 
+                        (select p.*, u.nickname from posting p
+                        join users u
+                        on p.userId = u.id) p,
                         (select p.id, count(l.id) likesCount from posting p
                         left join likes l
                         on p.id = l.postingId
@@ -284,7 +287,10 @@ class LoginStatusPostingListResource(Resource) :
 
             # 게시글 가져오기         
             query = '''select p.* , likesCount.likesCount, commentCount.commentCount, imgCount.imgCount, isLike.isLike
-                        from posting p,
+                        from 
+                        (select p.*, u.nickname from posting p
+                        join users u
+                        on p.userId = u.id) p,
                         (select p.id, count(l.id) likesCount from posting p
                         left join likes l
                         on p.id = l.postingId
@@ -304,6 +310,7 @@ class LoginStatusPostingListResource(Resource) :
                         group by p.id) isLike
                         where p.id = likesCount.id and p.id = commentCount.id and p.id = imgCount.id and p.id = isLike.id
                         group by p.id
+                        order by p.createdAt desc
                         limit {}, {};'''.format(offset, limit)
 
             record = (userId, )
@@ -623,7 +630,9 @@ class PostingInfoResource(Resource) :
                     (select count(id) likesCount
                                     from likes
                                     where postingId = %s) likesCount
-                    from posting p
+                    from (select p.*, u.nickname from posting p
+                        join users u
+                        on p.userId = u.id) p
                     left join posting_image pi
                     on p.id = pi.postingId
                     group by p.id
@@ -713,11 +722,13 @@ class LoginStatusPostingInfoResource(Resource) :
                                     on p.id = l.postingId and l.userId = %s
                                     where p.id = %s
                     ) isLike
-                    from posting p
+                    from 
+                    (select p.*, u.nickname from posting p
+                    join users u
+                    on p.userId = u.id) p
                     left join posting_image pi
                     on p.id = pi.postingId
                     group by p.id
-                    order by p.createdAt desc
                     having p.id = %s;'''            
             record = (postingId, postingId, userId, postingId, postingId)
             # 3. 커서를 가져온다.
