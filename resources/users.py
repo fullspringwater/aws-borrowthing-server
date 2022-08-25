@@ -37,7 +37,7 @@ class UserRegisterResource(Resource) :
         # 3. 비밀번호의 길이가 유효한지 체크한다.
         # 비번길이는 4자리 이상, 12자리 이하로만!
         if len(data['password']) < 4 or len(data['password']) > 12 :
-            return {'error' : '비밀번호 길이를 확인하세요'}, 200
+            return {'error' : '비밀번호 길이를 확인하세요'}, 400
 
         # 4. 비밀번호를 암호화 한다.
         hashedPassword = hash_password( data['password'] )
@@ -151,7 +151,7 @@ class UserLoginResource(Resource) :
         # 되어 있지 않은 이메일이다.
 
         if len(items) != 1 :
-            return {'error' : '등록되어 있지 않은 이메일입니다.'}, 200
+            return {'error' : '등록되어 있지 않은 이메일입니다.'}, 400
 
         # 4. 비밀번호가 맞는지 확인한다.
         user_info = items[0]
@@ -161,7 +161,7 @@ class UserLoginResource(Resource) :
         check = check_password(data['password'] , user_info['password'])
 
         if check == False :
-            return {'error' : '비밀번호가 맞지 않습니다.'}, 200
+            return {'error' : '비밀번호가 맞지 않습니다.'}, 400
 
         accessToken = create_access_token( user_info['id'])
 
@@ -260,7 +260,7 @@ class UserLocationResource(Resource) :
             cursor.execute(query, record)
             items = cursor.fetchall()
             if not items :
-                return {"error" : "지원하는 지역이 아닙니다."}, 200
+                return {"error" : "지원하는 지역이 아닙니다."}, 400
             sidoId = items[0]['id']
 
             # 시, 군, 구 찾기
@@ -272,7 +272,7 @@ class UserLocationResource(Resource) :
             items = cursor.fetchall()
 
             if not items :
-                return {"error" : "지원하는 지역이 아닙니다."}, 200
+                return {"error" : "지원하는 지역이 아닙니다."}, 400
             siggId = items[0]['id']
             # 읍, 면, 동 찾기
             query = '''select * from emd_areas
@@ -283,7 +283,7 @@ class UserLocationResource(Resource) :
             items = cursor.fetchall()
 
             if not items :
-                return {"error" : "지원하는 지역이 아닙니다."}, 200
+                return {"error" : "지원하는 지역이 아닙니다."}, 400
             emdId = items[0]['id']
 
             
@@ -675,7 +675,7 @@ class UserBuyResource(Resource) :
                         limit {}, {};'''.format(status, offset, limit)
                 
             else :
-                return {"error" : "허용되지 않은 status 값 입니다."}, 200                        
+                return {"error" : "허용되지 않은 status 값 입니다."}, 400                     
             record = (userId, userId)
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.
@@ -768,11 +768,11 @@ class UserSaleResource(Resource) :
         status = request.args.get('status') 
         if offset is None or limit is None :
             return {'error' : '쿼리스트링 셋팅해 주세요.',
-                    'error_no' : 123}, 200
+                    'error_no' : 123}, 400
 
         if status is None or int(status) > 2 or int(status) < 0:
             return {'error' : 'status를 제대로 셋팅해 주세요.',
-                    'error_no' : 123}, 200                    
+                    'error_no' : 123}, 400               
         try :
             # 1. DB에 연결
             connection = get_connection()   
@@ -821,7 +821,7 @@ class UserSaleResource(Resource) :
                             order by g.updatedAt desc
                             limit {}, {};'''.format(status, offset, limit)   
             else :
-                return {"error" : "허용되지 않은 status 값 입니다."}, 200    
+                return {"error" : "허용되지 않은 status 값 입니다."}, 400  
             record = (userId, )
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.

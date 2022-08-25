@@ -164,7 +164,7 @@ class GoodsListResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {"error" : "동네 설정 후 작성 가능합니다."}
+                return {"error" : "동네 설정 후 작성 가능합니다."}, 400
             
             # 2. 쿼리문 만들기
             query = '''insert into goods
@@ -700,7 +700,7 @@ class GoodsPostingResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
 
             # 2. 쿼리문 만들기
             query = '''update goods
@@ -1469,7 +1469,7 @@ class GoodsCommentInfoResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
 
             # 2. 쿼리문 만들기
             query = '''Update goods_comments
@@ -1605,13 +1605,13 @@ class GoodsReviewResource(Resource) :
             # 거래 완료 상태인지 확인
             item = cursor.fetchall()
             if item[0]['status'] != 2 :
-                return {"error" : "거래 완료 상태가 아닙니다."}, 200
+                return {"error" : "거래 완료 상태가 아닙니다."}, 400
 
 
             score = data['score']
             # 점수 범위 확인
             if score > 5 or score < 1 :
-                return {"error" : "평가 점수를 제대로 입력해주세요."}, 200
+                return {"error" : "평가 점수를 제대로 입력해주세요."}, 400
 
             # insert 쿼리문 만들기
             query = '''insert into evaluation_items
@@ -1673,11 +1673,11 @@ class GoodsInterestItemResource(Resource) :
 
             # 본인상품을 관심목록에 추가하는지 확인
             if item[0]['sellerId'] == userId :
-                return {"error" : "본인 상품은 추가할 수 없습니다."}, 200
+                return {"error" : "본인 상품은 추가할 수 없습니다."}, 400
 
             # 거래대기 상태인지 확인
             if item[0]['status'] != 0 :
-                return {"error" : "거래 대기 상태가 아닙니다."}, 200
+                return {"error" : "거래 대기 상태가 아닙니다."}, 400
 
 
             # 2. 쿼리문 만들기
@@ -1856,7 +1856,7 @@ class GoodsRecommendResource(Resource) :
             if len(items) < 3 :
                 cursor.close()
                 connection.close()
-                return {'error' : '리뷰를 남긴 횟수가 3회 미만입니다.'}, 200
+                return {'error' : '리뷰를 남긴 횟수가 3회 미만입니다.'}, 400
 
             # 전체 물품별, 별점 평균 리스트
             query = '''select ei.authorId, ei.goodsId, ei.score, g.sellerId 
@@ -2090,11 +2090,11 @@ class GoodsDealResource(Resource) :
             
             # 판매자가 아닌지 확인
             if items[0]['sellerId'] == userId :
-                return {"error" : "본인 글입니다."}, 200
+                return {"error" : "본인 글입니다."}, 400
 
             # 거래대기 상태 확인
             if items[0]['status'] != 0 :
-                return {"error" : "거래 대기 상태가 아닙니다."}, 200
+                return {"error" : "거래 대기 상태가 아닙니다."}, 400
 
 
             # 거래 신청을 하면 buy 테이블에 상품, 구매자 추가
@@ -2171,7 +2171,7 @@ class GoodsDealResource(Resource) :
             
             # 판매자가 아닌지 확인
             if not items :
-                return {"error" : "구매자가 아닙니다."}, 200
+                return {"error" : "구매자가 아닙니다."}, 400
 
             # 게시글 가져오기         
             query = '''select * from goods
@@ -2190,7 +2190,7 @@ class GoodsDealResource(Resource) :
 
             # 거래중 상태 확인
             if items[0]['status'] != 1 :
-                return {"error" : "거래 중인 상태가 아닙니다."}, 200
+                return {"error" : "거래 중인 상태가 아닙니다."}, 400
 
 
             # 거래 신청을 하면 buy 테이블에 상품, 구매자 삭제
@@ -2265,7 +2265,7 @@ class GoodsDealResource(Resource) :
             
             # 판매자가 아닌지 확인
             if not items :
-                return {"error" : "구매자가 아닙니다."}, 200
+                return {"error" : "구매자가 아닙니다."}, 400
 
             # 게시글 가져오기         
             query = '''select * from goods
@@ -2284,7 +2284,7 @@ class GoodsDealResource(Resource) :
 
             # 거래중 상태 확인
             if items[0]['status'] != 1 :
-                return {"error" : "거래 중인 상태가 아닙니다."}, 200
+                return {"error" : "거래 중인 상태가 아닙니다."}, 400
 
 
             # 상품의 상태를 2 (거래 완료)로 변경

@@ -410,7 +410,7 @@ class PostingInfoResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
 
             # 2. 쿼리문 만들기
             query = '''Update posting
@@ -560,7 +560,7 @@ class PostingInfoResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
             
             # 2. 쿼리문 만들기
             # 이미지 삭제
@@ -992,7 +992,7 @@ class PostingCommentInfoResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
 
             # 2. 쿼리문 만들기
             query = '''Update posting_comments
@@ -1043,7 +1043,7 @@ class PostingCommentInfoResource(Resource) :
             if len(items) < 1 :
                 cursor.close()
                 connection.close()
-                return {'error' : '잘못된 접근입니다.'}
+                return {'error' : '잘못된 접근입니다.'}, 400
 
             # 게시글 삭제
             query = '''Delete from posting_comments
