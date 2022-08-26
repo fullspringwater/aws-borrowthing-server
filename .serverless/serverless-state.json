@@ -174,7 +174,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/aws-borrowthing-server/dev/1661475134173-2022-08-26T00:52:14.173Z/aws-borrowthing-server.zip"
+                "S3Key": "serverless/aws-borrowthing-server/dev/1661493447509-2022-08-26T05:57:27.509Z/aws-borrowthing-server.zip"
               },
               "Handler": "wsgi_handler.handler",
               "Runtime": "python3.8",
@@ -192,14 +192,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersion97DJQwLqjghrNFH2uM5ivftDyfX4dNqO8BHFzznP2xo": {
+          "ApiLambdaVersionkZPidIz9a319jqmNT8wJaDdUOBidHekQxmN3pmk": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "3hWYqYZ39tGst/kmVmlHqdEzw1WCxHJ2GkaEZmcNgac="
+              "CodeSha256": "YCgbGtCHteCuxw/tS3FbQyOZ9AfHTTv4yPjqcpnPTWg="
             }
           },
           "HttpApi": {
@@ -269,7 +269,8 @@
               "IntegrationUri": {
                 "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"ApiLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
               },
-              "PayloadFormatVersion": "2.0"
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
             }
           },
           "HttpApiRouteDefault": {
@@ -306,7 +307,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersion97DJQwLqjghrNFH2uM5ivftDyfX4dNqO8BHFzznP2xo"
+              "Ref": "ApiLambdaVersionkZPidIz9a319jqmNT8wJaDdUOBidHekQxmN3pmk"
             },
             "Export": {
               "Name": "sls-aws-borrowthing-server-dev-ApiLambdaFunctionQualifiedArn"
@@ -457,7 +458,7 @@
         "timeout": 30,
         "runtime": "python3.8",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersion97DJQwLqjghrNFH2uM5ivftDyfX4dNqO8BHFzznP2xo"
+        "versionLogicalId": "ApiLambdaVersionkZPidIz9a319jqmNT8wJaDdUOBidHekQxmN3pmk"
       }
     },
     "configValidationMode": "warn",
@@ -481,10 +482,10 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "C:\\Users\\-\\Documents\\GitHub\\aws-borrowthing-server\\.serverless\\aws-borrowthing-server.zip"
+    "artifact": "C:\\Users\\chan\\Documents\\GitHub\\aws-borrowthing-server\\.serverless\\aws-borrowthing-server.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/aws-borrowthing-server/dev/1661475134173-2022-08-26T00:52:14.173Z",
+    "artifactDirectoryName": "serverless/aws-borrowthing-server/dev/1661493447509-2022-08-26T05:57:27.509Z",
     "artifact": "aws-borrowthing-server.zip"
   }
 }
