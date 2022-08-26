@@ -6,7 +6,7 @@ from resources.chat import ChatResource, ChatRoomListResource, ChatRoomResource
 from resources.community import LoginStatusPostingCommentResource, LoginStatusPostingInfoResource, LoginStatusPostingListResource, PostingCommentInfoResource, PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
 from resources.goods import GoodsCategoryResource, GoodsCommentInfoResource, GoodsCommentResource, GoodsDealResource, GoodsInterestItemResource, GoodsListInAreaResource, GoodsListResource, GoodsPostingResource, GoodsRecommendResource, GoodsReviewResource, LoginStatusGoodsCommentResource, LoginStatusGoodsListResource, LoginStatusGoodsPostingResource
 
-from resources.users import UserActivityAreaResource, UserBuyResource, UserCommunityCommentResource, UserEditResource, UserGoodsCommentResource, UserLikesPostingResource, UserLocationResource, UserLoginResource, UserLogoutResource, UserRegisterResource, UserSaleResource, UserWishlistResource, jwt_blacklist
+from resources.users import UserActivityAreaResource, UserBuyResource, UserCommunityCommentResource, UserEditResource, UserGoodsCommentResource, UserLikesPostingResource, UserLocationResource, UserLoginResource, UserLogoutResource, UserNotRatingBuyResource, UserRegisterResource, UserSaleResource, UserWishlistResource, jwt_blacklist
 
 app = Flask(__name__)
 
@@ -37,7 +37,7 @@ api.add_resource(UserLocationResource, '/users/location')
 api.add_resource(UserCommunityCommentResource, '/users/community/comment')
 api.add_resource(UserGoodsCommentResource, '/users/goods/comment')
 api.add_resource(UserActivityAreaResource, '/users/location/distance')
-
+api.add_resource(UserNotRatingBuyResource, '/users/buy/notrating')
 
 
 # goods
