@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from config import Config
-from resources.chat import ChatRoomListResource, ChatRoomResource
+from resources.chat import ChatResource, ChatRoomListResource, ChatRoomResource
 from resources.community import LoginStatusPostingCommentResource, LoginStatusPostingInfoResource, LoginStatusPostingListResource, PostingCommentInfoResource, PostingCommentResource, PostingInfoResource, PostingLikesResource, PostingListResource
 from resources.goods import GoodsCategoryResource, GoodsCommentInfoResource, GoodsCommentResource, GoodsDealResource, GoodsInterestItemResource, GoodsListInAreaResource, GoodsListResource, GoodsPostingResource, GoodsRecommendResource, GoodsReviewResource, LoginStatusGoodsCommentResource, LoginStatusGoodsListResource, LoginStatusGoodsPostingResource
 
@@ -68,6 +68,7 @@ api.add_resource(PostingLikesResource, '/community/<int:postingId>/likes')
 # chat
 api.add_resource(ChatRoomResource, '/chat/<int:goodsId>')
 api.add_resource(ChatRoomListResource, '/chat')
+api.add_resource(ChatResource, '/chatRoom/<int:chatRoomId>')
 
 if __name__ == '__main__' :
     app.run()
