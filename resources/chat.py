@@ -116,7 +116,7 @@ class ChatRoomListResource(Resource) :
                 items[i]['createdAt'] = record['createdAt'].isoformat()
                 if items[i]['updatedAt'] :
                     items[i]['updatedAt'] = record['updatedAt'].isoformat()
-                
+                items[i]['myId'] = userId
                 i = i+1
             cursor.close()
             connection.close()
