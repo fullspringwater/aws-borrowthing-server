@@ -174,7 +174,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/aws-borrowthing-server/dev/1661673090675-2022-08-28T07:51:30.675Z/aws-borrowthing-server.zip"
+                "S3Key": "serverless/aws-borrowthing-server/dev/1661674108091-2022-08-28T08:08:28.091Z/aws-borrowthing-server.zip"
               },
               "Handler": "wsgi_handler.handler",
               "Runtime": "python3.8",
@@ -192,14 +192,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionIzlvmxvFbsySNgWelHxJyuxm5dtOyRgMXWJRGw9NMQ": {
+          "ApiLambdaVersionixUmCFBGmLbbgxJzKnEb6LT9n7bbAeTX3ykIs9HsjY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "oadN32vKaKnhsf9OPfAO4BFUhsyI1EJGoe0RkXNBCfQ="
+              "CodeSha256": "5qVvU9LJA2uOh32GpW09LcQmD4j9RacYh17p29TtORw="
             }
           },
           "HttpApi": {
@@ -307,7 +307,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionIzlvmxvFbsySNgWelHxJyuxm5dtOyRgMXWJRGw9NMQ"
+              "Ref": "ApiLambdaVersionixUmCFBGmLbbgxJzKnEb6LT9n7bbAeTX3ykIs9HsjY"
             },
             "Export": {
               "Name": "sls-aws-borrowthing-server-dev-ApiLambdaFunctionQualifiedArn"
@@ -458,7 +458,7 @@
         "timeout": 30,
         "runtime": "python3.8",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionIzlvmxvFbsySNgWelHxJyuxm5dtOyRgMXWJRGw9NMQ"
+        "versionLogicalId": "ApiLambdaVersionixUmCFBGmLbbgxJzKnEb6LT9n7bbAeTX3ykIs9HsjY"
       }
     },
     "configValidationMode": "warn",
@@ -485,7 +485,7 @@
     "artifact": "C:\\Users\\chan\\Documents\\GitHub\\aws-borrowthing-server\\.serverless\\aws-borrowthing-server.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/aws-borrowthing-server/dev/1661673090675-2022-08-28T07:51:30.675Z",
+    "artifactDirectoryName": "serverless/aws-borrowthing-server/dev/1661674108091-2022-08-28T08:08:28.091Z",
     "artifact": "aws-borrowthing-server.zip"
   }
 }
