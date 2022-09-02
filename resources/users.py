@@ -281,7 +281,7 @@ class UserLocationResource(Resource) :
             # 읍, 면, 동 찾기
             query = '''select * from emd_areas
                     where siggAreaId = %s and name = %s;'''
-            record = (sidoId, data['emdName'])
+            record = (siggId, data['emdName'])
             cursor = connection.cursor(dictionary = True)
             cursor.execute(query, record)
             items = cursor.fetchall()
