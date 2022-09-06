@@ -1252,14 +1252,14 @@ class GoodsPostingResource(Resource) :
             # 2. 쿼리문 만들기
             query = '''select g.id, g.sellerId, g.title, g.content, g.price, g.viewCount, 
                     g.status, g.rentalPeriod, g.createdAt, count(gi.imageId) as imgCount,
-                    (select count(id) as attentionCount
+                    (select count(id) as wishCount
                     from wish_lists
-                    where goodsId = %s) as attentionCount,
+                    where goodsId = %s) as wishCount,
                     (select count(id) as commentCount
                     from goods_comments
                     where goodsId = %s) as commentCount
                     from goods g
-                    join goods_image gi
+                    left join goods_image gi
                         on g.id = gi.goodsId
                     group by g.id
                     having id = %s;'''            
@@ -1343,7 +1343,6 @@ class GoodsPostingResource(Resource) :
             "items" : items}, 200
 
 class LoginStatusGoodsPostingResource(Resource) :
-    # 로그인 상태일 때 특정 빌려주기글 가져오기
     @jwt_required()
     def get(self, goodsId) :
         userId = get_jwt_identity()
