@@ -2034,7 +2034,7 @@ class GoodsRecommendResource(Resource) :
                 connection.close()
                 return {'error' : '리뷰를 남긴 횟수가 3회 미만입니다.'}, 400
 
-            # 전체 물품별, 별점 평균 리스트
+            # 전체 판매자의 별점 리스트
             query = '''select ei.authorId, ei.goodsId, ei.score, g.sellerId 
                 from evaluation_items ei
                 join goods g
@@ -2080,21 +2080,28 @@ class GoodsRecommendResource(Resource) :
         # 상관계수 매트릭스로 만들기
         seller_rating_df = pd.DataFrame(sellerList)
         matrix = seller_rating_df.pivot_table(values = 'score', index = 'authorId', columns = 'sellerId', aggfunc = 'mean')
-        df = matrix.corr()            
-
+        df = matrix.corr()     
+        
         # 디비로 부터 가져온, 내 별점 정보를, 데이터프레임으로
         # 만들어 준다.
         df_my_rating = pd.DataFrame(data=items)
+        
 
         # 추천 판매자를 저장할, 빈 데이터프레임 만든다.
         similar_seller_list = pd.DataFrame()
 
         for i in range(  len(df_my_rating)  ) :
+            # 내가 평정을 남긴 판매자와 다른 판매자들과의 상관관계를 구하고, Nan을 제거 한다.
+            # 데이터 프레임 형태로 변경한다.
             similar_seller = df[df_my_rating['sellerId'][i]].dropna().sort_values(ascending=False).to_frame()
+            # 컬럼명을 Correlation 로 설정한다.
             similar_seller.columns = ['Correlation']
+            # Weight 컬럼을 만들고 그 값을 내가 그 판매자에게 주었던 점수 * Correlation 값으로 한다.
             similar_seller['weight'] = df_my_rating['score'][i] * similar_seller['Correlation']
+            # 그렇게 만든 similar_seller를 concat 함수를 이용해 붙여준다.
             similar_seller_list = pd.concat([similar_seller_list, similar_seller])
 
+        print(similar_seller_list)
 
         # weight 순으로 정렬한다.
         similar_seller_list.reset_index(inplace=True)
@@ -2105,7 +2112,7 @@ class GoodsRecommendResource(Resource) :
 
         recommened_seller_list = similar_seller_list['sellerId'].to_list()
 
-        print(recommened_seller_list)
+        # print(recommened_seller_list)
 
         # 본인이 판매자면 제거
         if userId in recommened_seller_list :
