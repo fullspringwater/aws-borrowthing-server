@@ -38,6 +38,113 @@
 
 ✅ Item Based Collaborative Filtering (아이템 기반 협업 필터링)
 - 유사도가 높은 판매자의 상품을 추천했습니다,
+``` python
+        #  추천을 위한 상관계수를 위해, 데이터베이스에서
+        #  이 유저의 별점 정보를, 디비에서 가져온다. 
+        try :
+            connection = get_connection()
+
+            # 작성자와 게시글이 유효한지 확인한다.
+            query = '''select * from evaluation_items
+                    where authorId = %s;'''
+            record = (userId, )
+            cursor = connection.cursor(dictionary = True)
+            cursor.execute(query, record)
+            items = cursor.fetchall()
+
+            if len(items) < 3 :
+                cursor.close()
+                connection.close()
+                return {'error' : '리뷰를 남긴 횟수가 3회 미만입니다.'}, 400
+
+            # 전체 판매자의 별점 리스트
+            query = '''select ei.authorId, ei.goodsId, ei.score, g.sellerId 
+                from evaluation_items ei
+                join goods g
+                on ei.goodsId = g.id;'''
+                       
+            # select 문은, dictionary = True 를 해준다.
+            cursor = connection.cursor(dictionary = True)
+
+            cursor.execute(query)
+
+            # select 문은, 아래 함수를 이용해서, 데이터를 가져온다.
+            sellerList = cursor.fetchall()
+            
+            cursor.close()
+
+            # 유저 별점 리스트
+            query = '''select ei.authorId, ei.goodsId, ei.score, g.sellerId 
+                from evaluation_items ei
+                join goods g
+                on ei.goodsId = g.id and ei.authorId = %s;'''
+            
+            record = (userId,)
+
+            # select 문은, dictionary = True 를 해준다.
+            cursor = connection.cursor(dictionary = True)
+
+            cursor.execute(query, record)
+
+            # select 문은, 아래 함수를 이용해서, 데이터를 가져온다.
+            items = cursor.fetchall()
+
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+
+            return {"error" : str(e), 'error_no' : 20}, 503
+
+        # 피봇 테이블 한 후
+        # 상관계수 매트릭스로 만들기
+        seller_rating_df = pd.DataFrame(sellerList)
+        matrix = seller_rating_df.pivot_table(values = 'score', index = 'authorId', columns = 'sellerId', aggfunc = 'mean')
+        df = matrix.corr()     
+        
+        # 디비로 부터 가져온, 내 별점 정보를, 데이터프레임으로
+        # 만들어 준다.
+        df_my_rating = pd.DataFrame(data=items)
+        
+
+        # 추천 판매자를 저장할, 빈 데이터프레임 만든다.
+        similar_seller_list = pd.DataFrame()
+
+        for i in range(  len(df_my_rating)  ) :
+            # 내가 평정을 남긴 판매자와 다른 판매자들과의 상관관계를 구하고, Nan을 제거 한다.
+            # 데이터 프레임 형태로 변경한다.
+            similar_seller = df[df_my_rating['sellerId'][i]].dropna().sort_values(ascending=False).to_frame()
+            # 컬럼명을 Correlation 로 설정한다.
+            similar_seller.columns = ['Correlation']
+            # Weight 컬럼을 만들고 그 값을 내가 그 판매자에게 주었던 점수 * Correlation 값으로 한다.
+            similar_seller['weight'] = df_my_rating['score'][i] * similar_seller['Correlation']
+            # 그렇게 만든 similar_seller를 concat 함수를 이용해 붙여준다.
+            similar_seller_list = pd.concat([similar_seller_list, similar_seller])
+
+        print(similar_seller_list)
+
+        # weight 순으로 정렬한다.
+        similar_seller_list.reset_index(inplace=True)
+
+        similar_seller_list = similar_seller_list.groupby('sellerId')['weight'].max().sort_values(ascending=False)
+
+        similar_seller_list = similar_seller_list.reset_index()
+
+        recommened_seller_list = similar_seller_list['sellerId'].to_list()
+
+        # print(recommened_seller_list)
+
+        # 본인이 판매자면 제거
+        if userId in recommened_seller_list :
+            recommened_seller_list.remove(userId)
+
+        # 판매자 리스트가 3명 보다 많으면 3명 까지만 사용
+        if len(recommened_seller_list) > 3 :
+            recommened_seller_list = recommened_seller_list[:2+1]
+```
 
 
 ## 💿 Usage
