@@ -132,3 +132,4 @@ mysql_connection.py
 config.py
 
 node_modules/
+.serverless/
