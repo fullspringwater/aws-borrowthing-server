@@ -87,7 +87,7 @@
                                         MaxLabels = 2)
 ```
 
-- Naver - Papago API(Translatlation)를 이용한 자동 태그 기능 구현
+- Naver - Papago API(Translatlation)
 ```python
                 for label in response['Labels'] :
                     # label['Name'] 이 값을 우리는 태그 이름으로 사용할것
@@ -221,9 +221,6 @@
             recommened_seller_list = recommened_seller_list[:2+1]
 ```
 <br>
-
-
-## 💿 Usage
 
 ### URL
 - 테이블 설계서 URL : https://www.erdcloud.com/d/nkBL3qYezYH993rSj
