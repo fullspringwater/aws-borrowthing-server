@@ -43,7 +43,7 @@
 ## 💿 Usage
 
 ### URL
-테이블 설계서 URL : https://www.erdcloud.com/d/nkBL3qYezYH993rSj
-API 명세서 URL : https://documenter.getpostman.com/view/21511146/VUxLwU8Q
-안드로이드 부분 깃허브 URL : https://github.com/fullspringwater/android-borrowthing
+- 테이블 설계서 URL : https://www.erdcloud.com/d/nkBL3qYezYH993rSj
+- API 명세서 URL : https://documenter.getpostman.com/view/21511146/VUxLwU8Q
+- 안드로이드 깃허브 URL : https://github.com/fullspringwater/android-borrowthing
 
