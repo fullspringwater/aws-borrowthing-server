@@ -12,10 +12,14 @@
 
 ✅ 거래 당사자 간 실시간 채팅을 할 수 있습니다. (**Firebase Realtime Database**)
 
+<br>
+
 ## 📘 Region Dataset Source
 ✅ 대한민국 행정구역별 위경도 좌표
 
  👉 출처 : https://skyseven73.tistory.com/23
+
+<br>
 
 ##
 ## 🛠 Environment
@@ -33,6 +37,77 @@
 - Serverless Flask Framework(AWS Lambda)
 - Storage : AWS S3
 - Database : AWS RDS
+
+## 💼 Object Detection, Translation
+✅ AWS - boto3 Rekognition (Object Detection) 
+
+✅ Naver - Papago API(Translatlation)를 이용한 자동 태그 기능 구현
+
+- AWS - boto3 Rekognition (Object Detection) 
+
+```python
+# rekognition 을 이용해서 object detection 한다.
+        client = boto3.client('rekognition',
+                            'ap-northeast-2',                               # region
+                            aws_access_key_id = Config.ACCESS_KEY,          # ACCESS_KEY   
+                            aws_secret_access_key = Config.SECRET_ACCESS)   # SECRET_ACCESS
+```
+```python
+        if 'photo' in request.files:
+            # 2. S3에 파일 업로드
+            # 클라이언트로부터 파일을 받아온다.
+            files = request.files.getlist("photo")
+            for file in files :
+                # 파일명을 우리가 변경해 준다.
+                # 파일명은, 유니크하게 만들어야 한다.
+                current_time = datetime.now()
+                new_file_name = current_time.isoformat().replace(':', '_') + ('.jpg')
+
+                # 유저가 올린 파일의 이름을 내가 만든 파일명으로 변경
+                file.filename = new_file_name
+                s3 = boto3.client('s3', 
+                            aws_access_key_id = Config.ACCESS_KEY,
+                            aws_secret_access_key = Config.SECRET_ACCESS)
+
+                try :
+                    s3.upload_fileobj(file,             # 업로드 파일
+                                    Config.S3_BUCKET,   # 버킷 url
+                                    file.filename,      # 파일명
+                                    ExtraArgs = {'ACL' : 'public-read', 'ContentType' : file.content_type})    # 권한, 타입
+
+                except Exception as e:
+                    return {'error' : str(e)}, 500
+```
+```python
+                response = client.detect_labels(Image = {
+                                                'S3Object' : {
+                                                        'Bucket' : Config.S3_BUCKET,
+                                                        'Name' : file.filename
+                                                        }},
+                                        MaxLabels = 2)
+```
+
+- Naver - Papago API(Translatlation)를 이용한 자동 태그 기능 구현
+```python
+                for label in response['Labels'] :
+                    # label['Name'] 이 값을 우리는 태그 이름으로 사용할것
+                    try :
+                        # 파파고 번역하기
+                        hearders = {'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'X-Naver-Client-Id' : Config.NAVER_CLIENT_ID,
+                            'X-Naver-Client-Secret' : Config.NAVER_CLIENT_SECRET}
+
+                        data = {'source' : 'en',
+                                'target' : 'ko',
+                                'text' : label['Name']}
+
+                        res = requests.post(Config.NAVER_PAPAGO_URL, data, headers = hearders)
+                        
+                        translatedText = res.json()['message']['result']['translatedText']
+```
+
+<br>
+
 
 ## 💼 Recommendation System
 
@@ -145,6 +220,7 @@
         if len(recommened_seller_list) > 3 :
             recommened_seller_list = recommened_seller_list[:2+1]
 ```
+<br>
 
 
 ## 💿 Usage
