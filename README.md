@@ -54,7 +54,7 @@
 ```
 ```python
         if 'photo' in request.files:
-            # 2. S3에 파일 업로드
+            # S3에 파일 업로드
             # 클라이언트로부터 파일을 받아온다.
             files = request.files.getlist("photo")
             for file in files :
