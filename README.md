@@ -199,7 +199,6 @@
             # 그렇게 만든 similar_seller를 concat 함수를 이용해 붙여준다.
             similar_seller_list = pd.concat([similar_seller_list, similar_seller])
 
-        print(similar_seller_list)
 
         # weight 순으로 정렬한다.
         similar_seller_list.reset_index(inplace=True)
@@ -210,7 +209,6 @@
 
         recommened_seller_list = similar_seller_list['sellerId'].to_list()
 
-        # print(recommened_seller_list)
 
         # 본인이 판매자면 제거
         if userId in recommened_seller_list :
